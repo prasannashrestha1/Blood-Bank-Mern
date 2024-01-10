@@ -1,31 +1,42 @@
+import express, { application } from "express";
 import mongoose from "mongoose";
-import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import morgan from "morgan";
+import authRoute from "./routes/authRoute.js";
 
 //dot config
 dotenv.config();
 
+//mongodb connection
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+    console.log(`Connected to mongodb succcessfully ${conn.connection.host}`);
+  } catch (error) {
+    console.log(`Erorr in mongodb ${error}`);
+  }
+};
+connectDB();
+
 //rest object
 const app = express();
 
-//routes
-//test route
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "welcome to blood bank app",
-  });
-});
+//middlewares
+app.use(express.json());
+app.use(cors());
+app.use(morgan(`dev`));
 
-app.use();
+//routes
+app.use("/api/v1/auth", authRoute);
 
 //port
-const PORT = 8080;
+const PORT = process.env.PORT;
 
 //listen
 app.listen(PORT, () => {
   try {
-    console.log(`Node js running in ${PORT}`);
+    console.log(`Node js running in ${process.env.DEV_MODE} port ${PORT}`);
   } catch (error) {
     console.log(error);
   }
